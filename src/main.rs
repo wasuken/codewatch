@@ -45,6 +45,12 @@ enum Commands {
         #[arg(long)]
         limit: Option<usize>,
     },
+    /// Show top files by score
+    Top {
+        /// Number of files to show
+        #[arg(long, default_value_t = 10)]
+        n: usize,
+    },
 }
 
 fn main() {
@@ -55,6 +61,7 @@ fn main() {
         Commands::Show { file } => commands::show::run(&file),
         Commands::Note { file } => commands::note::run(&file),
         Commands::List { sort, noted, limit } => commands::list::run(&sort, noted, limit),
+        Commands::Top { n } => commands::top::run(n),
     };
 
     if let Err(e) = res {
