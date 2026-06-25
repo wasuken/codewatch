@@ -51,6 +51,12 @@ enum Commands {
         #[arg(long, default_value_t = 10)]
         n: usize,
     },
+    /// Generate code reading report
+    Report {
+        /// Number of files to show
+        #[arg(long, default_value_t = 10)]
+        n: usize,
+    },
 }
 
 fn main() {
@@ -62,6 +68,7 @@ fn main() {
         Commands::Note { file } => commands::note::run(&file),
         Commands::List { sort, noted, limit } => commands::list::run(&sort, noted, limit),
         Commands::Top { n } => commands::top::run(n),
+        Commands::Report { n } => commands::report::run(n),
     };
 
     if let Err(e) = res {
