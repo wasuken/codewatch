@@ -3,7 +3,7 @@ use crate::index::load_index;
 use crate::note::read_note_content;
 use anyhow::{anyhow, Result};
 
-pub fn run(n: usize) -> Result<()> {
+pub fn run(n: usize, prefix: Option<String>) -> Result<()> {
     let project_root = find_project_root()
         .ok_or_else(|| anyhow!("Error: .codewatch/ not found. Run `cw init` first."))?;
 
@@ -13,6 +13,11 @@ pub fn run(n: usize) -> Result<()> {
     let mut noted_files = Vec::new();
 
     for (hash, file_info) in &index.files {
+        if let Some(ref p) = prefix {
+            if !file_info.path.starts_with(p) {
+                continue;
+            }
+        }
         if let Some(content) = read_note_content(&project_root, hash) {
             noted_files.push((file_info, content));
         }

@@ -1,6 +1,6 @@
 use crate::config::find_project_root;
 use crate::index::{load_index, path_to_hash, resolve_to_relative_path};
-use crate::note::{create_note_template, get_note_path, open_in_editor};
+use crate::note::{get_note_path, open_in_editor};
 use anyhow::{anyhow, Result};
 
 pub fn run(file: &str) -> Result<()> {
@@ -23,7 +23,15 @@ pub fn run(file: &str) -> Result<()> {
 
     let note_path = get_note_path(&project_root, &hash);
     if !note_path.is_file() {
-        create_note_template(&project_root, &hash, &relative_path)?;
+        if let Some(parent) = note_path.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+        let today = chrono::Local::now().format("%Y-%m-%d").to_string();
+        let template = format!(
+            "# {}\n\n理解度: 0/5\n最終確認: {}\n\n<!-- ここにメモを書く -->\n# 役割\n# 構造\n# 疑問・気になった点\n",
+            relative_path, today
+        );
+        std::fs::write(&note_path, template)?;
     }
 
     let editor_env = std::env::var("EDITOR").unwrap_or_else(|_| "vi".to_string());

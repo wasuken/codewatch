@@ -56,6 +56,10 @@ enum Commands {
         /// Number of files to show
         #[arg(long, default_value_t = 10)]
         n: usize,
+
+        /// Filter by directory prefix
+        #[arg(long)]
+        prefix: Option<String>,
     },
 }
 
@@ -68,7 +72,7 @@ fn main() {
         Commands::Note { file } => commands::note::run(&file),
         Commands::List { sort, noted, limit } => commands::list::run(&sort, noted, limit),
         Commands::Top { n } => commands::top::run(n),
-        Commands::Report { n } => commands::report::run(n),
+        Commands::Report { n, prefix } => commands::report::run(n, prefix),
     };
 
     if let Err(e) = res {
