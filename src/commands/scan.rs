@@ -103,13 +103,10 @@ pub fn run() -> Result<()> {
                         continue;
                     }
 
-                    let has_target_ext = config
-                        .target_extensions
-                        .iter()
-                        .any(|ext| rel_str.ends_with(ext));
-
-                    if has_target_ext && !exclude_matcher.is_excluded(&rel_str) {
-                        files.push((path.to_path_buf(), rel_str));
+                    if let Some(matched_ext) = config.find_matched_extension(&rel_str) {
+                        if !exclude_matcher.is_excluded(&rel_str) {
+                            files.push((path.to_path_buf(), rel_str, matched_ext));
+                        }
                     }
                 }
             }
@@ -125,7 +122,7 @@ pub fn run() -> Result<()> {
 
     print_progress(0, total_files);
 
-    for (idx, (abs_path, rel_path)) in files.iter().enumerate() {
+    for (idx, (abs_path, rel_path, matched_ext)) in files.iter().enumerate() {
         let file_size = fs::metadata(abs_path).map(|m| m.len()).unwrap_or(0);
 
         let last_modified = fs::metadata(abs_path)
@@ -140,7 +137,8 @@ pub fn run() -> Result<()> {
         };
 
         let content = fs::read_to_string(abs_path).unwrap_or_default();
-        let imports = parse_imports(&content);
+        let pattern = config.get_import_pattern(matched_ext).unwrap_or(r#"from\s+['"]([^'"]+)['"]"#);
+        let imports = parse_imports(&content, pattern);
         all_imports.insert(rel_path.clone(), imports);
 
         raw_data.push((rel_path.clone(), git_commits, file_size, last_modified_dt));

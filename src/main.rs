@@ -61,6 +61,17 @@ enum Commands {
         #[arg(long)]
         prefix: Option<String>,
     },
+    /// Configuration commands
+    Config {
+        #[command(subcommand)]
+        subcommand: ConfigSubcommands,
+    },
+}
+
+#[derive(Subcommand, Debug)]
+enum ConfigSubcommands {
+    /// Upgrade config.yml to the new format
+    Upgrade,
 }
 
 fn main() {
@@ -73,6 +84,9 @@ fn main() {
         Commands::List { sort, noted, limit } => commands::list::run(&sort, noted, limit),
         Commands::Top { n } => commands::top::run(n),
         Commands::Report { n, prefix } => commands::report::run(n, prefix),
+        Commands::Config { subcommand } => match subcommand {
+            ConfigSubcommands::Upgrade => commands::config::run_upgrade(),
+        },
     };
 
     if let Err(e) = res {
