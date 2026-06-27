@@ -50,6 +50,10 @@ enum Commands {
         /// Number of files to show
         #[arg(long, default_value_t = 10)]
         n: usize,
+
+        /// Offset of files to show
+        #[arg(long, default_value_t = 0)]
+        offset: usize,
     },
     /// Generate code reading report
     Report {
@@ -82,7 +86,7 @@ fn main() {
         Commands::Show { file } => commands::show::run(&file),
         Commands::Note { file } => commands::note::run(&file),
         Commands::List { sort, noted, limit } => commands::list::run(&sort, noted, limit),
-        Commands::Top { n } => commands::top::run(n),
+        Commands::Top { n, offset } => commands::top::run(n, offset),
         Commands::Report { n, prefix } => commands::report::run(n, prefix),
         Commands::Config { subcommand } => match subcommand {
             ConfigSubcommands::Upgrade => commands::config::run_upgrade(),
